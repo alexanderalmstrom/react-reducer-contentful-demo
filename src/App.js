@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { getPosts } from "./lib/contentful";
 import { postReducer } from "./reducers/post";
 import Post from "./components/Post";
@@ -6,15 +6,18 @@ import Post from "./components/Post";
 function App() {
   const [{ posts }, dispatch] = useReducer(postReducer, { posts: [] });
 
+  const loadPosts = async () => {
+    const payload = await getPosts();
+
+    dispatch({ type: "GET_POSTS", payload });
+  };
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
   return (
     <div>
-      <button
-        onClick={async () => {
-          dispatch({ type: "GET_POSTS", payload: await getPosts() });
-        }}
-      >
-        Get posts
-      </button>
       {posts.map(({ fields }, idx) => (
         <Post key={idx} {...fields} />
       ))}
